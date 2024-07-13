@@ -51,9 +51,9 @@ fn divRoundup(a: usize, b: usize) usize {
 
 fn flashSizeBytes(size: ?[]const u8) ?usize {
     if (size == null) return null;
-    const s = size.*;
+    const s = size.?;
     if (std.mem.endsWith(u8, s, "MB")) {
-        return std.fmt.parseInt(usize, s[0 .. s.len - 2], 10) catch unreachable;
+        return std.fmt.parseInt(usize, s[0 .. s.len - 2], 10) * 1024 * 1024 catch unreachable;
     } else if (std.mem.endsWith(u8, s, "KB")) {
         return std.fmt.parseInt(usize, s[0 .. s.len - 2], 10) * 1024 catch unreachable;
     } else {
