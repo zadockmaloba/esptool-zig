@@ -44,3 +44,11 @@ test "Basic config parsing test" {
         }
     }
 }
+
+test "Validate config file" {
+    const conf = @import("esptool/config.zig");
+
+    const res = try conf.validateConfigFile("./test/example.ini", false);
+
+    std.debug.assert(res);
+}
