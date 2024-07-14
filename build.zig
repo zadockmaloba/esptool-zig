@@ -28,7 +28,14 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    //Add the ini parser module
+    const ini = b.dependency("ini", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
     exe.root_module.addImport("regex", regex.module("regex"));
+    exe.root_module.addImport("ini", ini.module("ini"));
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
@@ -64,6 +71,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     exe_unit_tests.root_module.addImport("regex", regex.module("regex"));
+    exe_unit_tests.root_module.addImport("ini", ini.module("ini"));
 
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
 

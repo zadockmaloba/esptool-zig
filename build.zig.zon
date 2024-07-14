@@ -15,7 +15,7 @@
     // This field is optional.
     // This is currently advisory only; Zig does not yet do anything
     // with this value.
-    .minimum_zig_version = "0.11.0",
+    .minimum_zig_version = "0.13.0",
 
     // This field is optional.
     // Each dependency must either provide a `url` and `hash`, or a `path`.
@@ -28,6 +28,12 @@
         .regex = .{
             .url = "https://github.com/tiehuis/zig-regex/archive/refs/heads/master.tar.gz",
             .hash = "1220b497739b6fd60f627da85862cbd0cec01f3d6b7ddaa923057a7999ecfa138704",
+            .lazy = false,
+        },
+
+        .ini = .{
+            .url = "https://github.com/ziglibs/ini/archive/refs/heads/master.tar.gz",
+            .hash = "1220d2557282a0362e5e58a4b53a7696220f85a41bf379f0c2b2b6e391a85972a514",
             .lazy = false,
         },
         //.example = .{
