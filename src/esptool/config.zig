@@ -40,5 +40,8 @@ pub fn validateConfigFile(filePath: []const u8, verbose: bool) !bool {
     };
     defer cfg.deinit();
 
+    std.debug.print("Starting to parse the file\n", .{});
+    try cfg.parse();
+
     return true;
 }
