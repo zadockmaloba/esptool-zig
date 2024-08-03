@@ -34,8 +34,15 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    //Add the ziglang-set module
+    const zigset = b.dependency("zigset", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
     exe.root_module.addImport("regex", regex.module("regex"));
     exe.root_module.addImport("ini", ini.module("ini"));
+    exe.root_module.addImport("zigset", zigset.module("ziglangSet"));
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
@@ -72,6 +79,7 @@ pub fn build(b: *std.Build) void {
     });
     exe_unit_tests.root_module.addImport("regex", regex.module("regex"));
     exe_unit_tests.root_module.addImport("ini", ini.module("ini"));
+    exe_unit_tests.root_module.addImport("zigset", zigset.module("ziglangSet"));
 
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
 

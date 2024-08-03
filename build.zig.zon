@@ -36,6 +36,12 @@
             .hash = "1220d2557282a0362e5e58a4b53a7696220f85a41bf379f0c2b2b6e391a85972a514",
             .lazy = false,
         },
+
+        .zigset = .{
+            .url = "https://github.com/deckarep/ziglang-set/archive/refs/heads/main.tar.gz",
+            .hash = "1220c4600b6a431a46c3b5eac0630c8aa7cd63e3493886bb785b6d3cb4a5f507852e",
+            .lazy = false,
+        },
         //.example = .{
         //    // When updating this field to a new URL, be sure to delete the corresponding
         //    // `hash`, otherwise you are communicating that you expect to find the old hash at
