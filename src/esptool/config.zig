@@ -22,26 +22,39 @@ pub const ConfFileError = error{
     UnicodeDecodeError,
 };
 
-pub fn validateConfigFile(filePath: []const u8, verbose: bool) !bool {
-    //TODO: Implement verbose and non-verbose mode
-    _ = verbose;
+pub const Config = struct {
+    //allocator: std.mem.Allocator,
+    arena: std.heap.ArenaAllocator,
 
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer if (gpa.deinit() != .ok) @panic("memory leaked");
+    pub fn init(allocator: std.mem.Allocator) Config {
+        return .{
+            //.allocator = allocator,
+            .arena = std.heap.ArenaAllocator.init(allocator), //NOTE: We need to use an arena allocator due to the string operations in the parser
+        };
+    }
 
-    var cfg = configparser.init(gpa.allocator(), filePath) catch |err| switch (err) {
-        std.fs.File.OpenError.FileNotFound => {
-            std.debug.print("File: {s} not found \n", .{filePath});
-            return false;
-        },
-        else => {
-            return err;
-        },
-    };
-    defer cfg.deinit();
+    pub fn deinit(self: *@This()) void {
+        self.arena.deinit();
+    }
 
-    std.debug.print("Starting to parse the file\n", .{});
-    try cfg.parse();
+    pub fn validateConfigFile(self: *@This(), filePath: []const u8, verbose: bool) !bool {
+        //TODO: Implement verbose and non-verbose mode
+        _ = verbose;
 
-    return true;
-}
+        var cfg = configparser.init(self.arena.allocator(), filePath) catch |err| switch (err) {
+            std.fs.File.OpenError.FileNotFound => {
+                std.debug.print("File: {s} not found \n", .{filePath});
+                return false;
+            },
+            else => {
+                return err;
+            },
+        };
+        defer cfg.deinit();
+
+        std.debug.print("Starting to parse the file\n", .{});
+        try cfg.parse();
+
+        return true;
+    }
+};
