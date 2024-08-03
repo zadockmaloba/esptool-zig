@@ -22,6 +22,8 @@ pub const ConfFileError = error{
     UnicodeDecodeError,
 };
 
+//NOTE: We need to use an arena allocator due to the string operations in the parser
+//Ref: https://ziglang.org/documentation/master/std/#std.heap.ArenaAllocator
 pub const Config = struct {
     //allocator: std.mem.Allocator,
     arena: std.heap.ArenaAllocator,
@@ -29,7 +31,7 @@ pub const Config = struct {
     pub fn init(allocator: std.mem.Allocator) Config {
         return .{
             //.allocator = allocator,
-            .arena = std.heap.ArenaAllocator.init(allocator), //NOTE: We need to use an arena allocator due to the string operations in the parser
+            .arena = std.heap.ArenaAllocator.init(allocator),
         };
     }
 
