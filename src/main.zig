@@ -48,7 +48,13 @@ test "Basic config parsing test" {
 test "Validate config file" {
     const conf = @import("esptool/config.zig");
 
-    const res = try conf.validateConfigFile("./test/example.ini", false);
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer if (gpa.deinit() != .ok) @panic("memory leaked");
+
+    var conf_obj = conf.Config.init(gpa.allocator());
+    defer conf_obj.deinit();
+
+    const res = try conf_obj.validateConfigFile("./test/example.ini", false);
 
     std.debug.assert(res);
 }
