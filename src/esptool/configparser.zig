@@ -3,13 +3,15 @@ const ini = @import("ini");
 
 const Section = struct {
     name: []const u8,
-    options: []const ini.KeyValue,
+    values: []const ini.KeyValue = undefined,
+    start_idx: u8 = 0,
+    end_idx: u8 = 0,
 };
 
 pub const ConfigParser = struct {
     filepath: []const u8,
     allocator: std.mem.Allocator,
-    fields: std.StringHashMap(Section) = undefined,
+    fields: std.StringHashMap(Section),
     file: std.fs.File = undefined,
     kv_buffer: std.ArrayList(ini.KeyValue),
 
@@ -33,37 +35,56 @@ pub const ConfigParser = struct {
         var parser = ini.parse(self.allocator, self.file.reader());
         defer parser.deinit();
 
-        var current_section: Section = .{
-            .name = "NAN",
-            .options = &[_]ini.KeyValue{},
-        };
         var section_started: bool = false;
+        var start_idx: u8 = 0;
+        var tmp_header: []u8 = undefined;
 
         while (try parser.next()) |record| {
-            //const record = try parser.next() orelse break;
-
             switch (record) {
                 .section => |heading| {
                     if (section_started) {
+                        const sel: Section = .{
+                            .name = heading[0..],
+                            .start_idx = start_idx,
+                            .end_idx = @intCast(self.kv_buffer.items.len),
+                        };
                         std.debug.print("Ending section...\n", .{});
-                        //current_section.options = try self.kv_buffer.toOwnedSlice();
-                        //tmp.clearAndFree();
-                        //std.debug.print("Section: \n {any}\n", .{current_section});
-                        //try self.fields.put(current_section.name, current_section);
+                        std.debug.print("Ending: {s}\n", .{sel.name});
+                        try self.fields.put(sel.name, sel);
                         section_started = false;
-                        std.debug.print("Ending section part2\n", .{});
+                        std.debug.print("Ending section part2 \n", .{});
                     }
 
-                    std.debug.print("Starting section...\n", .{});
-                    current_section.name = heading;
+                    std.debug.print("Starting section... {s}\n", .{heading});
                     section_started = true;
+                    start_idx = @intCast(self.kv_buffer.items.len);
+
+                    const mutableSlice = try self.allocator.alloc(u8, heading.len);
+                    //defer self.allocator.free(mutableSlice);
+                    std.mem.copyBackwards(u8, mutableSlice, heading[0..]);
+                    tmp_header = mutableSlice;
                 },
                 .property => |kv| {
-                    std.debug.print("Key: {s}\n", .{kv.key});
                     try self.kv_buffer.append(kv);
                 },
-                .enumeration => |value| _ = value, //TODO: Implement
+                .enumeration => |value| _ = value, // TODO: Implement
             }
         }
+
+        if (section_started) {
+            std.debug.print("Ending last section: {s}...\n", .{tmp_header[0..]});
+            const sel: Section = .{
+                .name = tmp_header[0..],
+                .start_idx = start_idx,
+                .end_idx = @intCast(self.kv_buffer.items.len),
+            };
+            std.debug.print("Ending section...\n", .{});
+            std.debug.print("Ending: {s}\n", .{sel.name});
+            try self.fields.put(sel.name, sel);
+            section_started = false;
+            std.debug.print("Ending section part2 \n", .{});
+        }
+
+        std.debug.print("Sections Map: {any}", .{self.fields.count()});
     }
 };
